@@ -1,0 +1,4 @@
+ghcr_user: Vikgur
+ghcr_email: longlive@inbox.ru
+ghcr_token: "{{ vault_ghcr_token }}"
+deploy_delete_enabled: true

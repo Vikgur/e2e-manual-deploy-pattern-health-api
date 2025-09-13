@@ -1,0 +1,106 @@
+- name: Установить базовые пакеты
+  hosts: master
+  become: true
+  roles:
+    - common
+
+- name: Установить k3s-агенты
+  hosts: workers
+  become: true
+  tasks:
+    - name: Зайти на агент
+      include_role:
+        name: k3s
+        tasks_from: agent
+
+- name: Проверить поды
+  hosts: master
+  become: true
+  tasks:
+    - name: Зайти на мастер
+      include_role:
+        name: k3s
+        tasks_from: check_pods
+
+- name: Создать неймспейс health-api
+  hosts: master
+  become: true
+  tasks:
+    - name: Зайти на мастер
+      include_role:
+        name: k3s
+        tasks_from: master
+
+- name: Установить Helm/Helmfile
+  hosts: master
+  become: true
+  roles:
+    - kubernetes-tools
+
+- name: Установить Docker
+  hosts: master
+  become: true
+  roles:
+    - docker
+
+- name: Логин в GHCR, создать секрет в kubernetes
+  hosts: master
+  become: true
+  vars_files:
+    - group_vars/vault/vault.yaml
+  roles:
+    - ghcr
+
+- name: Проверить все ноды на ready
+  hosts: master
+  become: true
+  tasks:
+    - name: Зайти на мастер
+      include_role:
+        name: k3s
+        tasks_from: check_nodes
+
+- name: Сохранить образы pause, postgresql, jaeger на мастер
+  hosts: master
+  become: true
+  roles:
+    - images_master
+
+- name: Копировать образы pause, postgres, jaeger на воркеры
+  hosts: workers
+  become: true
+  roles:
+    - images_copy_to_agents
+
+- name: Установка ingress-nginx
+  hosts: master
+  become: true
+  roles:
+    - ingress
+  tags: [ingress]
+
+- name: Копировать образы back и front на воркеры
+  hosts: master
+  become: true
+  roles:
+    - distribute_tar_images
+
+- name: Импортировать все образы на воркерах (pause, postgres, jaeger, back, front)
+  hosts: workers
+  become: true
+  roles:
+    - import_images_on_agents
+
+- name: Деплой прод-версии с helmfile
+  hosts: master
+  become: true
+  roles:
+    - deploy
+
+- name: Патчим nginx-сервис до NodePort
+  hosts: master
+  become: true
+  gather_facts: false
+  tags: [nginx_fix]
+  roles:
+    - nginx_fix

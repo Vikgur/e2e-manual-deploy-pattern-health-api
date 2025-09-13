@@ -1,0 +1,79 @@
+# Единый baseline для монорепо health-api
+
+repos:
+  # --- Pre-commit hooks по умолчанию ---
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.6.0
+    hooks:
+      - id: trailing-whitespace
+      - id: end-of-file-fixer
+      - id: check-yaml
+      - id: check-json
+      - id: check-added-large-files
+      - id: detect-private-key
+
+  # --- Python: стиль и форматирование ---
+  - repo: https://github.com/psf/black
+    rev: 24.3.0
+    hooks:
+      - id: black
+
+  - repo: https://github.com/pre-commit/mirrors-isort
+    rev: v5.12.0
+    hooks:
+      - id: isort
+
+  - repo: https://github.com/pycqa/flake8
+    rev: 7.0.0
+    hooks:
+      - id: flake8
+
+  # --- Frontend / общий форматтер ---
+  - repo: https://github.com/pre-commit/mirrors-prettier
+    rev: v3.1.0
+    hooks:
+      - id: prettier
+        additional_dependencies:
+          - prettier@3.1.0
+
+  # --- Bash ---
+  - repo: https://github.com/shellcheck-py/shellcheck-py
+    rev: v0.9.0.6
+    hooks:
+      - id: shellcheck
+
+  # --- YAML lint ---
+  - repo: https://github.com/adrienverge/yamllint
+    rev: v1.35.1
+    hooks:
+      - id: yamllint
+
+  # --- Dotenv lint ---
+  - repo: https://github.com/dotenv-linter/dotenv-linter
+    rev: v3.3.0
+    hooks:
+      - id: dotenv-linter
+
+  # --- Helm / Helmfile ---
+  - repo: https://github.com/helm/chart-testing
+    rev: v3.10.1
+    hooks:
+      - id: helm-lint
+
+  - repo: https://github.com/roboll/helmfile
+    rev: v0.156.0
+    hooks:
+      - id: helmfile-lint
+        entry: helmfile lint
+        language: system
+
+  # --- Kubeconform ---
+  - repo: https://github.com/yannh/kubeconform
+    rev: v0.6.7
+    hooks:
+      - id: kubeconform
+        entry: kubeconform
+        args: ["-strict"]
+
+default_language_version:
+  python: python3

@@ -1,0 +1,64 @@
+name: Release Docker images by tag (:version)
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  release-images:
+    runs-on: ubuntu-latest
+    env:
+      GHCR_REGISTRY: ghcr.io
+      GHCR_ORG: vik-devops-lab
+      VERSION: ${{ github.ref_name }}
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Log in to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.GHCR_REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Set up Cosign
+        uses: sigstore/cosign-installer@v3.5.0
+      - name: Build & push backend image
+        uses: docker/build-push-action@v4
+        with:
+          context: ./backend
+          push: true
+          tags: |
+            ${{ env.GHCR_REGISTRY }}/${{ env.GHCR_ORG }}/health-api-backend:${{ env.VERSION }}
+      - name: Sign backend image
+        env:
+          COSIGN_PASSWORD: ${{ secrets.COSIGN_PASSWORD }}
+          COSIGN_EXPERIMENTAL: "1"
+          COSIGN_REKOR_URL: https://rekor.sigstore.dev
+        run: |
+          echo "${{ secrets.COSIGN_KEY }}" > cosign.key
+          cosign sign \
+            --key cosign.key \
+            --upload \
+            ${{ env.GHCR_REGISTRY }}/${{ env.GHCR_ORG }}/health-api-backend:${{ env.VERSION }}
+      - name: Build & push frontend image
+        uses: docker/build-push-action@v4
+        with:
+          context: ./frontend
+          push: true
+          tags: |
+            ${{ env.GHCR_REGISTRY }}/${{ env.GHCR_ORG }}/health-api-frontend:${{ env.VERSION }}
+      - name: Sign frontend image
+        env:
+          COSIGN_PASSWORD: ${{ secrets.COSIGN_PASSWORD }}
+          COSIGN_EXPERIMENTAL: "1"
+          COSIGN_REKOR_URL: https://rekor.sigstore.dev
+        run: |
+          echo "${{ secrets.COSIGN_KEY }}" > cosign.key
+          cosign sign \
+            --key cosign.key \
+            --upload \
+            ${{ env.GHCR_REGISTRY }}/${{ env.GHCR_ORG }}/health-api-frontend:${{ env.VERSION }}
