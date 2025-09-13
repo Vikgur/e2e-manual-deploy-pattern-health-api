@@ -44,12 +44,21 @@
 
 ## Связанные репозитории  
 
+**Infrastructure / DevOps**  
 - [terraform-yandex-cloud-health-api](https://github.com/Vikgur/terraform-yandex-cloud-health-api) — Terraform-инфраструктура  
 - [ansible-manual-health-api](https://github.com/Vikgur/ansible-manual-health-api) — Ansible-автоматизация  
 - [helm-blue-green-canary-manual-health-api](https://github.com/Vikgur/helm-blue-green-canary-manual-health-api) — Helm/Helmfile для Dev и Prod  
 - [ci-manual-tag-deploy-health-api](https://github.com/Vikgur/ci-manual-tag-deploy-health-api) — CI/CD пайплайны (GitHub Actions)  
 - [bash-scripts-health-api](https://github.com/Vikgur/bash-scripts-health-api) — Bash-скрипты для деплоя и автоматизации  
 - [k8s-local-minikube-health-api](https://github.com/Vikgur/k8s-local-minikube-health-api) — локальный запуск MVP в Minikube  
+- [infra-docker-compose-health-api](https://github.com/Vikgur/prod-ready-dockerized-microservice-stack) — локальная инфраструктура (18 контейнеров)  
+
+**Application**  
+- [backend-health-api](https://github.com/Vikgur/health-api-for-microservice-stack) — Flask backend  
+- [frontend-health-api-ui](https://github.com/Vikgur/health-api-ui-for-microservice-stack) — React/Vite frontend  
+
+**Testing**  
+- [e2e-tests-health-api](https://github.com/Vikgur/e2e-tests-health-api-for-microservice-stack) — E2E тесты (Pytest + Allure)  
 
 ## Монорепо  
 
