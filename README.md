@@ -19,6 +19,9 @@
     - [Эндпоинты в режиме override](#эндпоинты-в-режиме-override)  
   - [MVP-версия в Minikube](#mvp-версия-в-minikube)  
     - [Сервисы](#сервисы)  
+- [backend/: Backend-сервис](#backend-backend-сервис)  
+- [frontend/: Frontend-сервис](#frontend-frontend-сервис)  
+- [e2e_tests/: End-to-End тесты](#e2e_tests-end-to-end-тесты)  
 - [Makefile](#makefile)  
 - [CI/CD структура (GitHub Actions)](#cicd-структура-github-actions)  
   - [Успешный прогон](#успешный-прогон)  
@@ -51,7 +54,7 @@
 - [ci-manual-tag-deploy-health-api](https://github.com/Vikgur/ci-manual-tag-deploy-health-api) — CI/CD пайплайны (GitHub Actions)  
 - [bash-scripts-health-api](https://github.com/Vikgur/bash-scripts-health-api) — Bash-скрипты для деплоя и автоматизации  
 - [k8s-local-minikube-health-api](https://github.com/Vikgur/k8s-local-minikube-health-api) — локальный запуск MVP в Minikube  
-- [infra-docker-compose-health-api](https://github.com/Vikgur/prod-ready-dockerized-microservice-stack) — локальная инфраструктура (18 контейнеров)  
+- [infra-docker-compose-health-api](https://github.com/Vikgur/infra-docker-compose-health-api) — локальная инфраструктура (18 контейнеров)  
 
 **Application**  
 - [backend-health-api](https://github.com/Vikgur/health-api-for-microservice-stack) — Flask backend  
@@ -254,6 +257,27 @@ MVP запускается локально в **Minikube** и служит дл
 
 > Подробное описание и инструкции — в отдельном репозитории [k8s-local-minikube-health-api](https://github.com/Vikgur/k8s-local-minikube-health-api).  
  
+---
+
+# backend/: Backend-сервис  
+
+В `backend/` находится API на **Python (Flask)** с базовой бизнес-логикой, health-check эндпоинтами и подключением к PostgreSQL и Kafka. Для unit-тестирования используется **Pytest**, конфигурация обернута в Dockerfile и Helm-чарт.  
+
+> Подробное описание сервиса и его кода — в отдельном репозитории [backend-health-api](https://github.com/Vikgur/health-api-for-microservice-stack).  
+
+# frontend/: Frontend-сервис  
+
+В `frontend/` реализован SPA-интерфейс на **React + Vite**, который взаимодействует с backend через REST API. Проект упакован в Docker-образ, статика отдаётся через Nginx, доступна интеграция со Swagger UI.  
+
+> Подробное описание реализации и сборки фронтенда — в отдельном репозитории [frontend-health-api-ui](https://github.com/Vikgur/health-api-ui-for-microservice-stack).  
+
+---
+
+# e2e_tests/: End-to-End тесты  
+
+В `e2e_tests/` собраны **E2E тесты** на Python (**Pytest + Allure**) для проверки функциональности приложения в проде и стейдже. Тестируются основные сценарии UI и API, используется отдельный CI workflow.  
+
+> Подробное описание структуры тестов и генерации отчетов — в отдельном репозитории [e2e-tests-health-api](https://github.com/Vikgur/e2e-tests-health-api-for-microservice-stack).  
 
 ---
 
@@ -297,7 +321,6 @@ Workflow:
 ![CI](screenshots/monorepo_ci_artifacts.png)  
 
 > Подробная структура и описание пайплайна — в отдельном репозитории [ci-manual-tag-deploy-health-api](https://github.com/Vikgur/ci-manual-tag-deploy-health-api). 
-
 
 ---
 
