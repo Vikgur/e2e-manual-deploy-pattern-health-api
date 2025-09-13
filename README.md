@@ -15,8 +15,6 @@
   - [Yandex Cloud структура](#yandex-cloud-структура)  
 - [Архитектура (локальная)](#архитектура-локальная)  
   - [infra_compose/: Расширенная версия в Docker Compose](#infra_compose-расширенная-версия-в-docker-compose)  
-    - [Эндпоинты и интерфейсы](#эндпоинты-и-интерфейсы)  
-    - [Эндпоинты в режиме override](#эндпоинты-в-режиме-override)  
   - [MVP-версия в Minikube](#mvp-версия-в-minikube)  
     - [Сервисы](#сервисы)  
 - [backend/: Backend-сервис](#backend-backend-сервис)  
