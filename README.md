@@ -54,7 +54,7 @@
 - [ci-manual-tag-deploy-health-api](https://github.com/Vikgur/ci-manual-tag-deploy-health-api) — CI/CD пайплайны (GitHub Actions)  
 - [bash-scripts-health-api](https://github.com/Vikgur/bash-scripts-health-api) — Bash-скрипты для деплоя и автоматизации  
 - [k8s-local-minikube-health-api](https://github.com/Vikgur/k8s-local-minikube-health-api) — локальный запуск MVP в Minikube  
-- [infra-docker-compose-health-api](https://github.com/Vikgur/infra-docker-compose-health-api) — локальная инфраструктура (18 контейнеров)  
+- [infra-docker-compose-health-api](https://github.com/Vikgur/prod-ready-dockerized-microservice-stack) — локальная инфраструктура (18 контейнеров)  
 
 **Application**  
 - [backend-health-api](https://github.com/Vikgur/health-api-for-microservice-stack) — Flask backend  
@@ -189,73 +189,23 @@ UI с 4 кнопками, все запросы проходят через `ngi
 
 ## infra_compose/: Расширенная версия в Docker Compose  
 
-Запускается полный технологический стек проекта.  
+В `infra_compose/` запускается полный технологический стек проекта (18 контейнеров), включая backend, frontend, брокеры Kafka/Zookeeper, PostgreSQL + PgBouncer, observability (Prometheus, Grafana, Jaeger, Alertmanager) и экспортёры.  
 
-Проект построен по принципу **декомпозиции**:  
-- `backend` (`health-api`) и `frontend` (`health-api-ui`) — независимые сервисы, собираемые в отдельные Docker-образы.  
-
-**Итого разворачивается 18 контейнеров**, среди них:  
-
-- 2×`health-api` (для балансировки),  
-- `nginx` — reverse proxy,  
-- `swagger-ui` — REST-документация,  
-- `health-api-frontend` — SPA UI,  
-- `Kafka`, `Zookeeper`, `Redpanda Console`,  
-- `Postgres`, `PgBouncer`,  
-- observability-стек: `Prometheus`, `VictoriaMetrics`, `Grafana`, `Jaeger`, `Alertmanager`,  
-- экспортёры: `pgbouncer-exporter`, `postgres-exporter`, `kafka-exporter`.  
-
-### Эндпоинты и интерфейсы
-
-Все маршруты проксируются через `nginx` и защищены **базовой авторизацией** (`.htpasswd`, логин: `admin`, пароль: `admin`).
-
-| Назначение            | URL                                | Описание                                            |
-|-----------------------|-------------------------------------|-----------------------------------------------------|
-| API root              | http://localhost/                  | Главная точка API (`health-api`) через `nginx`      |
-| API: /health          | http://localhost/health            | Проверка статуса API                                |
-| API: /version         | http://localhost/version           | Версия сервиса                                      |
-| Swagger UI            | http://localhost/swagger/          | Swagger-документация API                            |
-| UI (SPA)              | http://localhost/ui/                | UI-витрина, ручное тестирование, демо
-| API: /api/            | http://localhost/api/...            | API-прокси для SPA |
-| API: /db-test         | http://localhost/db-test           | Проверка подключения к базе через PgBouncer         |
-| API: /send-kafka      | http://localhost/send-kafka        | Отправка тестового сообщения в Kafka                |
-| Kafka UI              | http://localhost:8084/             | Интерфейс Kafka (Redpanda Console)                  |
-| Метрики API           | http://localhost/metrics           | Метрики `health-api` (`prometheus_flask_exporter`) |
-| Grafana               | http://localhost:3000/             | Графики и дашборды                                  |
-| VictoriaMetrics       | http://localhost:8428/             | Интерфейс VictoriaMetrics                           |
-| Prometheus            | http://localhost:9090/             | Интерфейс Prometheus                                |
-| Alertmanager          | http://localhost:9093/             | Управление алертами                                 |
-| Jaeger UI             | http://localhost:16686/            | Трассировка запросов                                |
-| PgBouncer Exporter    | http://localhost:9127/metrics      | Метрики пула соединений PgBouncer                  |
-| Kafka Exporter        | http://localhost:9308/metrics      | Метрики Kafka-брокера, топиков и партиций          |
-| Postgres Exporter     | http://localhost:9187/metrics      | Метрики состояния PostgreSQL, активных подключений |
-
-### Эндпоинты в режиме override
-
-| Назначение                                 | URL                                | Комментарий                                |
-|--------------------------------------------|-------------------------------------|---------------------------------------------|
-| Корневой эндпоинт `health-api-1`           | http://localhost:8081/             | Контейнер из `override` (отладка)           |
-| Проверка статуса API                       | http://localhost:8081/health       |                                              |
-| Версия API                                 | http://localhost:8081/version      |                                              |
-| Тест соединения с базой через PgBouncer    | http://localhost:8081/db-test      |                                              |
-| Отправка сообщения в Kafka                 | http://localhost:8081/send-kafka   |                                              |
-| Метрики `health-api`                       | http://localhost:8081/metrics      | Подхватываются Prometheus                   |
+> Подробное описание сервисов, эндпоинтов и override-конфигураций — в отдельном репозитории [infra-docker-compose-health-api](https://github.com/Vikgur/prod-ready-dockerized-microservice-stack).  
 
 ## MVP-версия в Minikube  
 
-MVP запускается локально в **Minikube** и служит для отработки полного цикла DevOps. Управление осуществляется через **Helm**.  
-
-Используются готовые чарты (например, Bitnami PostgreSQL) и кастомные (backend, frontend, nginx, swagger), настроенные по best practices: probes, ресурсы, стратегии деплоя, безопасность, HPA, rollout-контроль и DRY через helpers.  
+Локальный запуск проекта в **Minikube** для отработки DevOps-цикла. Управление через **Helm**, используются готовые (PostgreSQL) и кастомные чарты (backend, frontend, nginx, swagger).  
 
 ### Сервисы  
-- **backend** — Flask API (2 пода для балансировки).  
-- **frontend** — React SPA (Vite).  
+- **backend** — Flask API (2 пода).  
+- **frontend** — React SPA.  
 - **postgres** — база данных.  
 - **nginx** — ingress и точка входа.  
 - **swagger** — OpenAPI UI.  
-- **jaeger** — заглушка (backend шлёт трейсы в `app.py`).  
+- **jaeger** — заглушка для трейсов.  
 
-> Подробное описание и инструкции — в отдельном репозитории [k8s-local-minikube-health-api](https://github.com/Vikgur/k8s-local-minikube-health-api).  
+> Подробности и инструкции — в отдельном репозитории [k8s-local-minikube-health-api](https://github.com/Vikgur/k8s-local-minikube-health-api).  
  
 ---
 
